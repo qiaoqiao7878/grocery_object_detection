@@ -1,0 +1,5 @@
+opencv-python
+numpy
+pycocotools
+tflite-model-maker
+tensorflow==2.8.0

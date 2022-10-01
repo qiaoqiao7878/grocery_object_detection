@@ -127,3 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+/images
+/annotations
+/images_jpeg
+/test_images
+/test_images_ori
