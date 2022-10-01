@@ -15,9 +15,12 @@ def get_bndbox(xml_path):
     tree = ET.parse(xml_path)
     root = tree.getroot()
 
-    size = root.find("size")
-    width = size.find("width")
-    height = size.find("height")
+    for size in root.iter("size"):
+        for dimension in size:
+            if dimension.tag == "width":
+                width = int(dimension.text)
+            elif dimension.tag == "height":
+                height = int(dimension.text)
 
     print(f"width: {width}")
     print(f"height: {height}")
@@ -30,13 +33,13 @@ def get_bndbox(xml_path):
         for bndbox in object.iter("bndbox"):
             for bound in bndbox:
                 if bound.tag == "xmin":
-                    xmin = int(bound.text)
+                    xmin = int(bound.text) / width
                 elif bound.tag == "ymin":
-                    ymin = int(bound.text)
+                    ymin = int(bound.text) / height
                 elif bound.tag == "xmax":
-                    xmax = int(bound.text)
+                    xmax = int(bound.text) / width
                 elif bound.tag == "ymax":
-                    ymax = int(bound.text)
+                    ymax = int(bound.text) / height
         bndboxs.append((xmin, ymin, xmax, ymax))
 
     return bndboxs
@@ -44,9 +47,8 @@ def get_bndbox(xml_path):
 
 if __name__ == "__main__":
     main_folder = "/home/qiao/TUM_AI/grocery_object_detection/"
-    class_file = os.path.join(main_folder, "classes.txt")
+
     csv_file = os.path.join(main_folder, "data", "dataset.csv")
-    image_size = 224
 
     df = pd.read_csv(csv_file)
 
@@ -54,13 +56,7 @@ if __name__ == "__main__":
     image_jpeg_folder = os.path.join(main_folder, "images_jpeg")
     annotation_folder = os.path.join(main_folder, "annotations")
 
-    classes = []
-    with open(class_file) as f:
-        for line in f.readlines():
-            classes.append(line.strip())
-
-    # for food_class in classes:
-    for food_class in ["chips", "chocolate", "fish", "cereal"]:
+    for food_class in ["apple", "banana"]:
         subclass = os.path.join(image_folder, food_class)
         image_names = os.listdir(subclass)
         os.makedirs(os.path.join(image_jpeg_folder, food_class), exist_ok=True)
@@ -77,7 +73,8 @@ if __name__ == "__main__":
             xml_path = os.path.join(annotation_folder, food_class, xml)
             try:
                 bndboxs = get_bndbox(xml_path)
-            except:
+            except Exception as e:
+                print(e)
                 continue
 
             for bndbox in bndboxs:
@@ -87,10 +84,10 @@ if __name__ == "__main__":
                         "training": "TRAIN",
                         "image_path": new_image_path,
                         "label": food_class,
-                        "xmin": xmin / image_size,
-                        "ymin": ymin / image_size,
-                        "xmax": xmax / image_size,
-                        "ymax": ymax / image_size,
+                        "xmin": xmin,
+                        "ymin": ymin,
+                        "xmax": xmax,
+                        "ymax": ymax,
                     },
                     ignore_index=True,
                 )

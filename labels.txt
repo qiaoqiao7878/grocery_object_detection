@@ -1,0 +1,8 @@
+1: label
+2: cereal
+3: fish
+4: oatmeal
+5: pizza
+6: Apple
+7: banana
+8: water
