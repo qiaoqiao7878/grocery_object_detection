@@ -133,7 +133,6 @@ annotations
 images_jpeg
 test_images
 test_images_ori
-models
 test_result
 checkpoints
 
